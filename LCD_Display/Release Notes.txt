@@ -1,0 +1,10 @@
+Version 1.1.1 DisplayDriver
+
+Release Notes:
+	- rearrange Code
+	- Strukture Code
+	- add Replacing for ANSI
+	- Optimize Code
+
+Development Notes:
+	- add Backlight
