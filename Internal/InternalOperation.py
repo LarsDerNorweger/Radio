@@ -12,7 +12,7 @@ import os
 
 class InternalOperation():
 
-    def dumpPID(filename = "./PID.txt"):
+    def dumpPID(self,filename = "./PID.txt"):
         PID = os.getpid()
         print(PID)
         with open(filename,"w") as file:
