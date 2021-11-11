@@ -10,7 +10,7 @@ import json
 
 class SpaceArranger:
     def __init__(self):
-        with open("LCDSettings.json","r")as readfile:
+        with open("../LCDSettings.json","r")as readfile:
             self.Settings = json.load(readfile)
             readfile.close()
 
