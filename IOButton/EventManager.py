@@ -6,48 +6,40 @@
 #      kontakt: boettger.colin@gmail.com                                                          #
 #-------------------------------------------------------------------------------------------------#
 
-import json
-import threading
-from time import sleep
-import ButtonDriver
+
+import time, json
+import RPi.GPIO as GPIO
 
 
-
-
-class Button:
+class Button(object):
     def __init__(self):
+
+        with open("../ButtonSettings.json","r")as readfile:
+            self.Settings = json.load(readfile)
+            readfile.close()
+
         self.EventLibrary={ }
+        self.LastActivatedTime = { } 
 
-        return None
-    
-    def mainloop(self):
-        threading.Thread(target=lambda: self.eventLoop()).start()
-
-    def addEvent(self,port,function = None):
+    async def addEvent(self,port,function = None):
         if function == None:
             raise Exception("Incomplete Parameterliste")
 
+        GPIO.setup(port, GPIO.IN)
+
         self.EventLibrary.update({port:function})
-        print(self.EventLibrary)
 
-        return None
+        akttime = float(time.time())
+        self.LastActivatedTime.update({port:akttime})
 
-    def handleEvent(self, Port):
+
+    async def handleEvent(self, Port):
         print("Handle Event",Port)
-        print(self.EventLibrary[Port])
-        exec(self.EventLibrary[Port])
-        
+        if float(time.time()) - self.LastActivatedTime[Port] >= self.Settings["UnbounceTime"]:
+            await self.EventLibrary[Port]()       
+            self.LastActivatedTime[Port] = float(time.time())
 
-    def eventLoop(self):
-        while(True):
-             
-            sleep(3)
-
-def test():
-    print("test succesfull")
-
-
-
-b = Button()
-b.addEvent(2,test)
-b.handleEvent(2)
+    async def LookForEvent(self):
+        for port in self.EventLibrary.keys():
+            if GPIO.input(port):
+                await self.handleEvent(port)
