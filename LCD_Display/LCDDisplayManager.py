@@ -7,7 +7,6 @@
 #-------------------------------------------------------------------------------------------------#
 
 import json
-from os import SEEK_CUR
 from time import time
 import RPi.GPIO as GPIO
 from LCD_Display.LCDSpaceArranger import SpaceArranger
@@ -26,7 +25,10 @@ class DisplayManager:
         self.lineContent = []
         self.shownContent = []
         self.Updated = []
+
         self.Shedule = {}
+        self.Timer = {}
+
 
         for i in range(0, self.Settings["LCD_LINES"]):
             self.lineContent.append('')
@@ -36,7 +38,18 @@ class DisplayManager:
     async def toggleDisplay(self):
         self.Displaydriver.ToggleDisplay()
 
-    async def addShedule(self,textfunktion,lineNumber, refreshtime):
+    async def addContentToDisplay(self,text,lineNumber):
+            if lineNumber > self.Settings["LCD_LINES"] or lineNumber == None:
+                raise Exception("No defiend Displayline")
+
+            if text != self.lineContent[lineNumber-1]:
+                self.lineContent[lineNumber-1] = str(text)
+                text = await self.spaceArranger.formattingText(text)
+                self.shownContent[lineNumber-1]=str(text)
+                self.Updated[lineNumber-1]=True
+
+
+    async def addContentWithShedule(self,textfunktion,lineNumber, refreshtime):
         self.Shedule.update({lineNumber:[textfunktion,refreshtime,0]})
 
     async def LookForShedule(self):
@@ -47,15 +60,12 @@ class DisplayManager:
                     await self.addContentToDisplay(await cache[0](),line)
                     self.Shedule[line][2] = float(time())
 
-    async def addContentToDisplay(self,text,lineNumber):
-        if lineNumber > self.Settings["LCD_LINES"] or lineNumber == None:
-            raise Exception("No defiend Displayline")
+    
 
-        if text != self.lineContent[lineNumber-1]:
-            self.lineContent[lineNumber-1] = str(text)
-            text = await self.spaceArranger.formattingText(text)
-            self.shownContent[lineNumber-1]=str(text)
-            self.Updated[lineNumber-1]=True
+
+
+
+
 
     async def UpdateDisplay(self):
         await self.LookForShedule()
