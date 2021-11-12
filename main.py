@@ -34,7 +34,7 @@ async def setup():
     
     # noch nicht Implementiert
 
-    await dispMan.addShedule(Refresh,1,1)
+    await dispMan.addContentWithShedule(Refresh,1,1)
     print("ready")
 
 async def loop():
