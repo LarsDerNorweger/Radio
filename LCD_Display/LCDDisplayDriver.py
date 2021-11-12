@@ -16,9 +16,10 @@ class DisplayDriver:
             self.Settings = json.load(readfile)
             readfile.close()
         
+        self.DisplayState = self.gen_States()
+
         GPIO.setmode(GPIO.BCM)
-        GPIO.setup(21, GPIO.OUT)
-        GPIO.output(21,GPIO.HIGH)
+        GPIO.setup(self.Settings["LCD_BACKLIGHT"],GPIO.OUT)
 
         GPIO.setwarnings(False)
         GPIO.setup(self.Settings["LCD_E"], GPIO.OUT)
@@ -40,7 +41,7 @@ class DisplayDriver:
             GPIO.output(self.Settings["LCD_DATA4"], GPIO.LOW)
             GPIO.output(self.Settings["LCD_DATA5"], GPIO.LOW)
             GPIO.output(self.Settings["LCD_DATA6"], GPIO.LOW)
-            GPIO.output(self.Settings["LCD_DATA7"], GPIO.LOW)#
+            GPIO.output(self.Settings["LCD_DATA7"], GPIO.LOW)
     
         def sendEndBytes():
             time.sleep(self.Settings["E_DELAY"])
@@ -94,3 +95,11 @@ class DisplayDriver:
             raise Exception("Line out of Range",line)
 	
         self.lcd_message(text)
+
+    def ToggleDisplay(self):
+        GPIO.output(self.Settings["LCD_BACKLIGHT"] ,self.DisplayState.__next__()) 
+
+    def gen_States(self):
+        while True:
+            yield GPIO.HIGH
+            yield GPIO.LOW
