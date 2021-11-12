@@ -25,24 +25,14 @@ async def setup():
     await Buttons.addEvent(9,ChangePlayList)
     await Buttons.addEvent(26,ChangeSource)
     
+    # noch nicht Implementiert
+
     await dispMan.addShedule(Refresh,1,1)
-
-
-
-
-
-    await dispMan.addContentToDisplay("Hallo",2)
-    await dispMan.addContentToDisplay("GUten Tag äh ist das zu lang?",1)
-
     print("ready")
 
 async def loop():
     await Buttons.LookForEvent()
     await dispMan.UpdateDisplay()
-
-
-# RadioVariables
-
 
 
 # Radio Functions
@@ -54,7 +44,6 @@ async def Power():
     rf.ChangePowerState()
     await dispMan.toggleDisplay()
     await dispMan.addContentToDisplay(" ",1)
-    await dispMan.addContentToDisplay("Hello World",2)
     print("Power Triggerd")
 
 async def VolumePlus():
