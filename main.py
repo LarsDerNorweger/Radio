@@ -15,6 +15,8 @@ Buttons = Button()
 
 rf = RadioFunktions.Radiofunctions()
 
+prevTime = 0
+
 async def setup():
     
     internal.dumpPID()
@@ -24,6 +26,11 @@ async def setup():
     await Buttons.addEvent(6,VolumeMinus)
     await Buttons.addEvent(9,ChangePlayList)
     await Buttons.addEvent(26,ChangeSource)
+    await Buttons.addEvent(5,PrevTitle)
+    await Buttons.addEvent(11,NextTitle)
+    
+
+
     
     # noch nicht Implementiert
 
@@ -57,6 +64,12 @@ async def ChangePlayList():
 
 async def ChangeSource():
     await dispMan.addContentToDisplay(rf.Changesource(),2)
+
+async def NextTitle():
+    rf.changeTitle("up")
+
+async def PrevTitle():
+    rf.changeTitle("down")
 
 
 
