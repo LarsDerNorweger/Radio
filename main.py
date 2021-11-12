@@ -1,26 +1,102 @@
 import asyncio
+import os
+
+import RPi.GPIO as GPIO
+import time, RadioFunktions
+from LCD_Display.LCDSpaceArranger import *
+from LCD_Display.LCDDisplayManager import DisplayManager
+from IOButton.EventManager import Button
+from Internal.InternalOperation import InternalOperation
 
 
-from etc.helper import asyncsleep
-from etc.LCDSpaceArranger import *
-from etc.LCDDisplayManager import DisplayManager
-
+internal = InternalOperation()
 dispMan = DisplayManager()
+Buttons = Button()
+
+rf = RadioFunktions.Radiofunctions()
 
 async def setup():
     
+    internal.dumpPID()
+
+    await Buttons.addEvent(19,Power)
+    await Buttons.addEvent(13,VolumePlus)
+    await Buttons.addEvent(6,VolumeMinus)
+    await Buttons.addEvent(9,ChangePlayList)
+    await Buttons.addEvent(26,ChangeSource)
+    
+    await dispMan.addShedule(Refresh,1,1)
+
+
+
+
+
     await dispMan.addContentToDisplay("Hallo",2)
     await dispMan.addContentToDisplay("GUten Tag äh ist das zu lang?",1)
 
     print("ready")
 
 async def loop():
+    await Buttons.LookForEvent()
     await dispMan.UpdateDisplay()
-    
+
+
+# RadioVariables
+
+
+
+# Radio Functions
+
+async def Refresh():
+    return rf.getCurrentTitle()
+
+async def Power():
+    rf.ChangePowerState()
+    await dispMan.toggleDisplay()
+    await dispMan.addContentToDisplay(" ",1)
+    await dispMan.addContentToDisplay("Hello World",2)
+    print("Power Triggerd")
+
+async def VolumePlus():
+    await dispMan.addContentToDisplay(rf.Volume("+5"),2)
+
+async def VolumeMinus():
+    await dispMan.addContentToDisplay(rf.Volume("-5"),2)
+
+async def ChangePlayList():
+    await dispMan.addContentToDisplay(rf.ChangePlaylist(),2)
+
+async def ChangeSource():
+    await dispMan.addContentToDisplay(rf.Changesource(),2)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 if __name__ == "__main__":
     asyncio.run(setup())
     while (True):
         asyncio.run(loop())
+        time.sleep(0.1)
     
     
 

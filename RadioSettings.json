@@ -1,0 +1,16 @@
+{
+    "Radio":{
+        "MDR Sachsen":"284280-0_mp3_low",
+        "Hitradio RTL": "HITRTL",
+        "Hitradio RTL 80's":"HITRTL-80GER",
+        "Hitradio RTL Oldies":"HITRTL-OLDIES",
+        "Hitradio RTL x-mas":"HITRTL-XMAS"
+    },
+    
+    "Intern":{
+        "80-ger":"80-ger",
+        "Hintergrundmusik":"Hintergrund",
+        "Heiligoomd":"ErzWeihnachten",
+        "Weihnachten":"Weihnachten"
+    }
+}
