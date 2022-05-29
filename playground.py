@@ -7,11 +7,13 @@
 #-------------------------------------------------------------------------------------------------#
 
 from Internal.InternalOperation import InternalOperation
+import logging
 
 
 def mainplayground():
-    InternalOperation.shortenLog(5, "./test.py")
-    InternalOperation.shortenLog(5, "./test.py")
+    InternalOperation.configLogging("./Radio.log")
+    InternalOperation.dumpPID()
+    InternalOperation.shortenLog(5, "Radio.log")
     pass
 
 

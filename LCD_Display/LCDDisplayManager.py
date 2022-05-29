@@ -40,7 +40,7 @@ class DisplayManager:
 
     async def addContentToDisplay(self, text: str, lineNumber: int):
         if lineNumber > self.Settings["LCD_LINES"] or lineNumber == None:
-            raise Exception("No defiend Displayline")
+            raise Exception("No defined Displayline")
 
         if text != self.lineContent[lineNumber-1]:
             self.lineContent[lineNumber-1] = str(text)

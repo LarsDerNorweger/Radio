@@ -20,7 +20,6 @@ class SpaceArranger:
         line = await self.replaceANSIwithASCI(str(text))
         if len(line) > self.Settings["LCD_WIDTH"]:
             line = await self.fillingWithSpacers(line)
-
         return line
 
     async def fillingWithSpacers(self, replacedline):

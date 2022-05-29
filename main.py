@@ -1,5 +1,5 @@
 import asyncio
-import os
+import logging
 
 import RPi.GPIO as GPIO
 import time
@@ -10,18 +10,22 @@ from IOButton.EventManager import Button
 from Internal.InternalOperation import InternalOperation
 
 
-dispMan = DisplayManager()
-Buttons = Button()
-
-rf = RadioFunktions.Radiofunctions()
-
 prevTime = 0
+dispMan: DisplayManager
+rf: RadioFunktions.Radiofunctions
+Buttons: Button
 
 
 async def setup():
-
-    InternalOperation.dumpPID()
-    InternalOperation.shortenLog(50, "./Restart.log")
+    InternalOperation.configLogging("./Radio.log")
+    try:
+        InternalOperation.dumpPID()
+        InternalOperation.shortenLog(200, "./Restart.log")
+        dispMan = DisplayManager()
+        Buttons = Button()
+        rf = RadioFunktions.Radiofunctions()
+    except Exception as e:
+        logging.error("Setup failed", exc_info=True)
 
     await Buttons.addEvent(19, Power)
     await Buttons.addEvent(13, VolumePlus)
@@ -38,8 +42,11 @@ async def setup():
 
 
 async def loop():
-    await Buttons.LookForEvent()
-    await dispMan.UpdateDisplay()
+    try:
+        await Buttons.LookForEvent()
+        await dispMan.UpdateDisplay()
+    except Exception as e:
+        logging.error("occured in mainLoop", exc_info=True)
 
 
 # Radio Functions
@@ -52,23 +59,29 @@ async def Power():
     rf.ChangePowerState()
     await dispMan.toggleDisplay()
     await dispMan.addContentToDisplay(" ", 1)
-    print("Power Triggerd")
+    logging.debug("Toggle Radio State")
 
 
 async def VolumePlus():
     await dispMan.addContentToDisplay(rf.Volume("+5"), 2)
+    logging.info("add volume")
 
 
 async def VolumeMinus():
     await dispMan.addContentToDisplay(rf.Volume("-5"), 2)
+    logging.info("reduce Volume")
 
 
 async def ChangePlayList():
-    await dispMan.addContentToDisplay(rf.ChangePlaylist(), 2)
+    nPl = rf.ChangePlaylist()
+    await dispMan.addContentToDisplay(nPl, 2)
+    logging.debug(f"Change Playlist to {nPl}")
 
 
 async def ChangeSource():
-    await dispMan.addContentToDisplay(rf.Changesource(), 2)
+    src = rf.Changesource()
+    await dispMan.addContentToDisplay(src, 2)
+    logging.debug(f"Change Playlist to {src}")
 
 
 async def NextTitle():

@@ -1,0 +1,5 @@
+  File "/home/colin/Dev/StartMusik/Radio/Internal/InternalOperation.py", line 26, in shortenLog
+    with open(filepath, "r+")as fs:
+FileNotFoundError: [Errno 2] No such file or directory: './test.py'
+6596-DEBUG-dump PID: 6596 in ./PID.txt
+6678-DEBUG-dump PID: 6678 in ./PID.txt

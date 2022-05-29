@@ -1,14 +1,15 @@
 #-------------------------------------------------------------------------------------------------#
-#      Written for a Raspberrypi 2021                                                             #                  
+#      Written for a Raspberrypi 2021                                                             #
 #                                                                                                 #
 #      Autor(s): Colin Böttger                                                                    #
 #                                                                                                 #
 #      kontakt: boettger.colin@gmail.com                                                          #
 #-------------------------------------------------------------------------------------------------#
 
-import json,os, subprocess
+import json
+import os
+import subprocess
 import RPi.GPIO as GPIO
-
 
 
 class NativeRadioMethods():
@@ -16,25 +17,25 @@ class NativeRadioMethods():
         while True:
             yield "Radio"
             yield "Intern"
-    
-    def gen_Playlist(self, Playlist):
+
+    def gen_Playlist(self, Playlist) -> str:
         while True:
             for item in Playlist:
                 yield item
 
 
 class NativeMPCMethods():
-    
+
     def __init__(self):
         self.getCommand = {
             "Radio":
             {
-                "start":"mpc play",
-                "stop":"mpc stop"
+                "start": "mpc play",
+                "stop": "mpc stop"
             },
-            "Intern":{
-                "start":"mpc play",
-                "stop":"mpc pause"
+            "Intern": {
+                "start": "mpc play",
+                "stop": "mpc pause"
             }
         }
         self.Playstate = self.gen_Playstate()
@@ -43,55 +44,54 @@ class NativeMPCMethods():
         while True:
             yield "start"
             yield "stop"
-    
-    def clearPlayList(self,Source):
+
+    def clearPlayList(self, Source):
         self.ToggleMusik(Source)
         os.system("mpc clear")
         return None
 
-    
-    def ToggleMusik(self,Source):
+    def ToggleMusik(self, Source):
         command = self.getCommand[Source][self.Playstate.__next__()]
         os.system(command)
         print(command)
 
 
-class Radiofunctions(NativeMPCMethods,NativeRadioMethods):
+class Radiofunctions(NativeMPCMethods, NativeRadioMethods):
     def __init__(self):
         GPIO.setup(20, GPIO.OUT)
         self.Powerstate = False
         self.npm = NativeMPCMethods()
-        with open("../RadioSettings.json","r")as readfile:
+        with open("../RadioSettings.json", "r")as readfile:
             self.Settings = json.load(readfile)
-            readfile.close() 
+            readfile.close()
 
         self.getSource = self.gen_Changer()
         self.Source = self.getSource.__next__()
         self.Playlist = self.gen_Playlist(self.Settings[self.Source].keys())
 
-    def ChangePlaylist(self):
+    def ChangePlaylist(self) -> str:
         self.npm.clearPlayList(self.Source)
         Playlist = self.Playlist.__next__()
-        command = "mpc load "+ self.Settings[self.Source][Playlist]
+        command = "mpc load " + self.Settings[self.Source][Playlist]
         print(command)
         os.system(command)
         self.npm.ToggleMusik(self.Source)
         return Playlist
 
     def Volume(self, ratio):
-        command = "mpc volume "+ str(ratio)
+        command = "mpc volume " + str(ratio)
         print(command)
         os.system(command)
-        return "Volume "+ str(ratio)
-    
+        return f"Volume  {ratio}"
+
     def Changesource(self):
         self.Source = self.getSource.__next__()
         self.Playlist = self.gen_Playlist(self.Settings[self.Source].keys())
-        return self.Source 
+        return self.Source
 
 # noch nicht an Event gebunden
 
-    def changeTitle(self,direction):
+    def changeTitle(self, direction) -> str:
         if self.Source == "Intern":
             if direction == "up":
                 os.system("mpc next")
@@ -102,7 +102,7 @@ class Radiofunctions(NativeMPCMethods,NativeRadioMethods):
 
     def getCurrentTitle(self):
         befehl = "mpc current"
-        process = subprocess.Popen(befehl,shell = True,stdout=subprocess.PIPE)
+        process = subprocess.Popen(befehl, shell=True, stdout=subprocess.PIPE)
         text = str(process.stdout.read())
         text = text[2:len(text)-3]
         print(text)
@@ -115,7 +115,3 @@ class Radiofunctions(NativeMPCMethods,NativeRadioMethods):
             GPIO.output(20, GPIO.HIGH)
             return
         GPIO.output(20, GPIO.LOW)
-
-
-
-        
