@@ -7,6 +7,7 @@
 #-------------------------------------------------------------------------------------------------#
 
 import json
+import logging
 import os
 import subprocess
 import RPi.GPIO as GPIO
@@ -53,7 +54,7 @@ class NativeMPCMethods():
     def ToggleMusik(self, Source):
         command = self.getCommand[Source][self.Playstate.__next__()]
         os.system(command)
-        print(command)
+        logging.debug(command)
 
 
 class Radiofunctions(NativeMPCMethods, NativeRadioMethods):
@@ -111,6 +112,8 @@ class Radiofunctions(NativeMPCMethods, NativeRadioMethods):
     def ChangePowerState(self):
         self.Powerstate = not(self.Powerstate)
         self.npm.ToggleMusik(self.Source)
+        logging.debug(
+            f"Change powerState:src->{self.Source},state->{self.Powerstate}")
         if self.Powerstate:
             GPIO.output(20, GPIO.HIGH)
             return
